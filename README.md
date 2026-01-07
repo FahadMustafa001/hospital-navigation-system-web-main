@@ -1,124 +1,144 @@
-# 🏥 Navigation System - Data Structures Project
+# 🏥 Hospital Navigation System (Web + C++ Backend)
 
-Welcome to the **Navigation System** — an educational project built for a **4th semester Data Structures course**. This system demonstrates how fundamental data structures can be applied to solve real-world problems in a web-based hospital navigation context.
+An educational navigation system for a hospital campus that demonstrates classical data structures and algorithms in a realistic setting. The frontend is a Leaflet-based web app; the backend is a minimal C++ HTTP API implementing authentication, Dijkstra-based routing, history via a stack, and visited locations via a set.
 
----
+—
 
-## 🎯 Project Objective
+## 🎯 What This Project Shows
 
-This project simulates navigation within a hospital environment. Users can select starting and ending locations (e.g., OPD → Emergency), and the system calculates the **shortest route** using Dijkstra's algorithm.
+- Shortest-path routing with Dijkstra’s algorithm on real coordinates
+- Using core data structures in practice:
+   - Stack: navigation history
+   - Set: unique visited locations
+   - Hash map: username/password authentication
+- Simple C++ HTTP server with JSON responses consumed by a browser
 
-Beyond route calculation, the project demonstrates how **Stacks**, **Sets**, and **Hash Maps** can be integrated into a functional web app — reinforcing how theoretical data structures power practical applications.
+—
 
----
+## 🧩 Architecture
 
-## 🧠 Data Structures Used
+- Frontend: HTML/CSS/JS (Leaflet, Turf) under `Pages/`
+- Backend: C++17 single-binary API server under `main.cpp` + `src/` + `include/`
+- Map data: GeoJSON/OSM and curated points under `MapData/`
 
-| 📦 Data Structure     | 💡 Purpose                                                                 |
-|----------------------|-----------------------------------------------------------------------------|
-| **Dijkstra’s Algorithm** | Finds the shortest path between nodes (locations) on the hospital map.      |
-| **Stack**             | Maintains navigation history — allowing "back" functionality and review.    |
-| **Set**               | Tracks unique visited nodes to prevent duplicates in the visited list.      |
-| **Hash Map**          | Handles user authentication — stores and checks username-password pairs.    |
+Server runs at `http://127.0.0.1:8081` and exposes:
 
----
+- `POST /api/login` → `{ success: true|false }`
+- `GET  /api/points` → list of points with `id,name,lat,lon`
+- `POST /api/route` → `{ distance, path[] }`
+- `GET  /api/history` → array of most recent origin→destination strings
+- `GET  /api/visited` → array of unique visited destination names
 
-## 💻 Tech Stack
+—
 
-- **Frontend**: HTML, CSS, JavaScript
-- **Mapping**: Leaflet.js
-- **Pathfinding**: Turf.js for spatial analysis
-- **Data Structures**: Custom-built Stack, Set, and Map logic in JavaScript modules
+## 🖥️ Quick Start
 
----
+Two ways to try it:
 
-## 📌 Features
+1) Frontend-only demo (no backend required)
+- Open `Pages/Navigation/index.html` in your browser.
+- Pick a Start and Destination to see a computed route and distance.
 
-- 🌐 Selectable map interface for hospital layout
-- 📍 Dijkstra-based route calculation
-- 🧭 View history of visited paths using a **Stack**
-- 📚 Keep track of visited unique locations using a **Set**
-- 🔐 Login functionality using a **Hash Map**
-- 🧾 Interactive modals to display project purpose and usage
-- 🎨 Clean, responsive UI
+2) Full stack (backend + login)
+- Build and run the C++ server (see Build section below).
+- Open `Pages/Login/login.html` and sign in with a sample account, e.g.:
+   - Username: `safi`
+   - Password: `safipass`
+- You’ll be redirected to the navigation page.
 
----
+—
 
-## 🚪 How to Use
+## 🛠️ Build (Windows-focused)
 
-1. Launch the `Login` page and log in using the provided sample credentials:
-   - **Username:** `safi`
-   - **Password:** `safipass`
+Requirements:
+- A C++17 compiler (one of):
+   - Visual Studio 2019+ (MSVC developer command prompt)
+   - MSYS2/MinGW-w64 with `g++`
 
-2. After login, the main interface allows you to:
-   - Select starting and destination points
-   - View the calculated shortest route
-   - Track route history and visited locations
+Source layout to compile:
+- Entry point: `main.cpp`
+- Sources: everything in `src/`
+- Headers: `include/`
 
-3. Overlays and buttons let you explore:
-   - Visited locations (Set)
-   - Navigation history (Stack)
-   - Logout and reset options
+MSVC (Developer Command Prompt):
 
----
+```bat
+cl /std:c++17 /O2 /I include main.cpp src\*.cpp /Fe:bin\hospital_nav.exe
+```
 
-## 🎓 Educational Purpose
-
-This project is designed for academic demonstration of how **data structures** work in real-world apps. It emphasizes:
-
-- Algorithm integration in UI
-- State management using stack/set
-- Authentication using hash maps
-- Visual interactivity using graphs on maps
-
-> ⚠️ **Note:** This project is for educational purposes only and is not meant for production deployment.
-
----
-
-## 👨‍💻 Author
-
-Made with ❤️ by **Fahad Mustafa**  
-_Data Structures – 3rd Semester Project_
-
----
-
-## 📷 Screenshots
-
-## Main Navigation Map
-![Map Navigation](./Screenshots/navigation.png)
-## Route History
-![Route History](./Screenshots/route-history.png)
-## Visited Locations
-![Visited History](./Screenshots/visited-history.png)
-
----
-
-## 📁 Project Structure
+MinGW-w64 (PowerShell/MSYS2 shell):
 
 ```bash
-NAVIGATIONSYSTEM/
-├── MapData/
-│   ├── customPoints.js        # Predefined important locations (nodes)
-│   ├── hospital.json          # Example or specific dataset
-│   └── map.osm                # Raw OSM data file (to be converted to GeoJSON)
-│
-├── Pages/
-│   ├── Login/
-│   │   ├── login.html         # Login UI
-│   │   ├── login.css          # Login styling
-│   │   └── login.js           # Login logic and validation
-│   │
-│   └── Navigation/
-│       ├── index.html         # Map interface with Leaflet
-│       ├── style.css          # Styling for navigation UI
-│       └── script.js          # Logic to display nodes, paths, and handle interactions
-│
-├── StructuresAlgorithms/
-│   ├── Dijkstra.js            # Dijkstra’s algorithm for shortest path
-│   ├── Set.js                 # Custom Set data structure
-│   └── Stack.js               # Custom Stack (for path tracing, etc.)
-│
-├── Utils/
-│   ├── authenticationData.js  # Fake/mock authentication backend
-│   └── drawRoute.js           # Function to draw path between two nodes
+g++ -std=c++17 -O2 -I include main.cpp src/*.cpp -o bin/hospital_nav.exe -lws2_32
+```
+
+Run the server:
+
+```bat
+bin\hospital_nav.exe
+```
+
+You should see: `Starting C++ backend API server...` then `listening on http://127.0.0.1:8081`.
+
+—
+
+## 🧪 Verifying the API
+
+Points:
+```bash
+curl http://127.0.0.1:8081/api/points
+```
+
+Login note: the current server expects simple key/value lines in the request body (not URL-encoded form). Example:
+
+```bash
+curl -X POST http://127.0.0.1:8081/api/login \
+   -H "Content-Type: text/plain" \
+   --data-binary '"user":"safi"\n"pass":"safipass"'
+```
+
+If you use the provided login page, make sure the server is running. If login fails, open `Pages/Navigation/index.html` directly to explore the routing UI without backend.
+
+—
+
+## 📚 Data Structures in Code
+
+- Dijkstra: `src/dijkstra.cpp`, `include/dijkstra.h`
+- Stack-based history: `src/stack.h` (templated) used in `main.cpp`
+- Visited set: `src/visited.cpp`, `include/visited.h`
+- Auth map: `src/auth.cpp`, `include/auth.h` (see sample users)
+
+—
+
+## 📁 Folder Guide
+
+```
+MapData/                 # OSM/GeoJSON + curated points
+Pages/
+   Login/                 # Login UI (talks to backend on 127.0.0.1:8081)
+   Navigation/            # Map + routing UI (Leaflet + Turf)
+StructuresAlgorithms/    # JS versions for didactic reference
+Utils/                   # Frontend helpers
+src/                     # C++ sources (server, dijkstra, json, etc.)
+include/                 # C++ headers
+bin/                     # Build output (created by you)
+main.cpp                 # C++ API entrypoint
+```
+
+—
+
+## 🔧 Troubleshooting
+
+- Port already in use: adjust the port in `main.cpp` at `svr.listen("127.0.0.1", 8081);` and in `Pages/Login/login.js` `API_BASE`.
+- CORS: server sends `Access-Control-Allow-Origin: *` for GET/POST/OPTIONS; ensure you hit `127.0.0.1`, not another host.
+- MinGW link errors on Windows: add `-lws2_32`.
+- Login payloads: the current backend expects simple `"key":"value"` lines; for browser form posts you may need to adjust the server parsing logic or send raw text as shown above.
+
+—
+
+## 👤 Author
+
+Built with ❤️ by **Fahad Mustafa** — for educational use.
+
+Screenshots: see `Screenshots/`.
 
